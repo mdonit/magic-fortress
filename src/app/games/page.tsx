@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, JSXElementConstructor, PromiseLikeOfReactNode, ReactElement, ReactNode, ReactPortal } from "react";
+import { useState, useEffect } from "react";
 import { useCollection } from "react-firebase-hooks/firestore";
 import { collection, getFirestore } from "firebase/firestore";
 import { app } from "@firebase/config";
@@ -8,10 +8,17 @@ import styles from "@styles/gametable.module.css";
 import { v4 } from "uuid";
 import getWeekDates from "@lib/getWeekDates";
 import { addToGames } from "@firebase/games";
-import { addPlayerGroup } from "@firebase/player-group";
+import { addPlayerGroup, updatePlayerGroup } from "@firebase/player-group";
+import GameTable from "@components/GameTable";
 
-const dayNames = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+type PlayerForm = {
+  visible: boolean;
+  id: string;
+};
+
+// const dayNames = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 const playerInitial: Player = {
+  id: "",
   name: "",
   isDm: false,
   canPlay: ["Maybe", "Maybe", "Maybe", "Maybe", "Maybe", "Maybe", "Maybe"],
@@ -22,30 +29,33 @@ const newGameInitial: Game = {
   type: "DnD",
   dmName: "",
   notes: "",
-  dates: [],
+  dates: getWeekDates(),
+};
+const playerFormInitial: PlayerForm = {
+  visible: false,
+  id: "",
 };
 
-const DndPage = () => {
+const GamesPage = () => {
   const currentDay = new Date();
-
   const currentDayFormat: string = `${currentDay.getFullYear()}-${currentDay.getMonth() + 1}-${currentDay.getDate()}`;
+
   const [today, setToday] = useState<number>(0);
 
   const [formVisible, setFormVisible] = useState<boolean>(false);
-  const [currentPlayer, setCurrentPlayer] = useState<Player>(playerInitial);
+  const [playerFormVisible, setPlayerFormVisible] = useState<PlayerForm>(playerFormInitial);
+  const [playerName, setPlayerName] = useState<string>("");
   const [newGame, setNewGame] = useState<Game>(newGameInitial);
 
   const [gameValue, gameLoading, gameError] = useCollection(collection(getFirestore(app), "games"), {
     snapshotListenOptions: { includeMetadataChanges: true },
   });
-  const [playersValue, playersLoading, playersError] = useCollection(collection(getFirestore(app), "playergroup"), {
+  const [playersValue] = useCollection(collection(getFirestore(app), "playergroup"), {
     snapshotListenOptions: { includeMetadataChanges: true },
   });
 
   useEffect(() => {
     setToday(new Date().getDay() - 1);
-
-    setNewGame({ ...newGame, dates: getWeekDates() });
   }, []);
 
   const addNewGame = (e: React.FormEvent<HTMLFormElement>) => {
@@ -53,69 +63,44 @@ const DndPage = () => {
     setFormVisible(false);
     const gameId = v4();
     const gameReady: Game = { ...newGame, id: gameId };
-    const gameDm: Player = { ...currentPlayer, isDm: true };
+    const gameDm: Player = { ...playerInitial, isDm: true, name: playerName, id: v4() };
+
+    console.log(gameReady.dates);
 
     addToGames(gameReady);
     addPlayerGroup(gameId, gameDm);
 
-    setCurrentPlayer(playerInitial);
+    setPlayerName("");
     setNewGame(newGameInitial);
+  };
+
+  const addNewPlayer = (e: React.FormEvent<HTMLFormElement>, gameId: string, player: Player) => {
+    e.preventDefault();
+    setPlayerFormVisible(playerFormInitial);
+
+    updatePlayerGroup(gameId, player);
   };
 
   return (
     <>
-      <h1>DnD</h1>
+      <h1>Games</h1>
       <section className="flex flex-col justify-center items-center">
-        <div className="flex flex-col justify-center w-full bg-slate-400">
+        <div className="flex flex-col justify-center w-full gap-40">
           {gameError && <strong>Error: {JSON.stringify(gameError)}</strong>}
           {gameLoading && <span>Loading Games...</span>}
           {gameValue &&
             gameValue.docs.map((gm) => (
-              <>
-                <div className="flex justify-center flex-col items-center">
-                  <h2>{gm.data().title}</h2>
-                  <h3>{gm.data().type}</h3>
-                </div>
-                <div>
-                  <ul className="grid grid-cols-8">
-                    <li></li>
-                    {dayNames.map((day, index) => (
-                      <li key={v4()} className={today === index ? "font-bold" : ""}>
-                        {`${day} (${gm.data().dates[index]})`}
-                      </li>
-                    ))}
-                  </ul>
-                  {playersError && <strong>Error: {JSON.stringify(playersError)}</strong>}
-                  {playersLoading && <span>Loading Players...</span>}
-                  {playersValue &&
-                    playersValue.docs
-                      .filter((gp) => gp.data().gameId === gm.data().id)[0]
-                      .data()
-                      .players.map((pl: Player) => (
-                        <ul className="grid grid-cols-8">
-                          <li key={v4()}>
-                            {pl.isDm && "DM-"} {pl.name}
-                          </li>
-                          {pl.canPlay.map((cp) => (
-                            <li key={v4()}>{cp}</li>
-                          ))}
-                        </ul>
-                      ))}
-                  {/* {playersValue &&
-                    playersValue.docs.map((gp) =>
-                      gp.data().players.map((pl: Player) => (
-                        <ul className="grid grid-cols-8">
-                          <li>
-                            {pl.isDm && "DM-"} {pl.name}
-                          </li>
-                          {pl.canPlay.map((cp) => (
-                            <li>{cp}</li>
-                          ))}
-                        </ul>
-                      ))
-                    )} */}
-                </div>
-              </>
+              <GameTable
+                key={gm.data().id}
+                gm={gm}
+                today={today}
+                playersValue={playersValue}
+                playerFormVisible={playerFormVisible}
+                setPlayerFormVisible={setPlayerFormVisible}
+                addNewPlayer={addNewPlayer}
+                setFormVisible={setFormVisible}
+                playerFormInitial={playerFormInitial}
+              />
             ))}
         </div>
         <div>
@@ -133,7 +118,7 @@ const DndPage = () => {
                   placeholder="e.g. Matt Mercer"
                   required
                   onChange={(e) => {
-                    setCurrentPlayer((prev) => ({ ...prev, name: e.target.value.trim() }));
+                    setPlayerName(e.target.value.trim());
                     setNewGame((prev) => ({ ...prev, dmName: e.target.value.trim() }));
                   }}
                 />
@@ -144,15 +129,29 @@ const DndPage = () => {
               </div>
               <div>
                 <button type="submit">Save</button>
-                <button type="button" onClick={() => setFormVisible(false)}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setFormVisible(false);
+                    setPlayerName("");
+                  }}
+                >
                   Cancel
                 </button>
               </div>
             </form>
           ) : (
-            <button type="button" onClick={() => setFormVisible(true)}>
-              CLICK HERE
-            </button>
+            gameValue && (
+              <button
+                type="button"
+                onClick={() => {
+                  setFormVisible(true);
+                  setPlayerFormVisible(playerFormInitial);
+                }}
+              >
+                CLICK HERE
+              </button>
+            )
           )}
         </div>
       </section>
@@ -160,4 +159,4 @@ const DndPage = () => {
   );
 };
 
-export default DndPage;
+export default GamesPage;

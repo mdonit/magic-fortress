@@ -15,7 +15,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body>
-        {/* <AuthContextProvider> */}
         <header>
           <Navigation />
         </header>
@@ -23,7 +22,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <footer>
           <FooterContent />
         </footer>
-        {/* </AuthContextProvider> */}
       </body>
     </html>
   );

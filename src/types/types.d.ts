@@ -6,6 +6,7 @@ type UserName = {
 type CanPlay = "Yes" | "No" | "Maybe";
 
 type Player = {
+  id: string;
   name: string;
   isDm: boolean;
   canPlay: CanPlay[];

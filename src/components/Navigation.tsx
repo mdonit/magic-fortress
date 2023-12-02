@@ -1,11 +1,11 @@
 "use client";
-import AuthOptions from "@components/AuthOptions";
+// import AuthOptions from "@components/AuthOptions";
 import React, { useState } from "react";
 import ConfirmModal from "./ConfirmModal";
 import { signout } from "@firebase/auth/signout";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import AuthModal from "./AuthModal";
+// import AuthModal from "./AuthModal";
 import styles from "@styles/nav.module.css";
 import Image from "next/image";
 import { BiUpArrow } from "react-icons/bi";
