@@ -65,8 +65,6 @@ const GamesPage = () => {
     const gameReady: Game = { ...newGame, id: gameId };
     const gameDm: Player = { ...playerInitial, isDm: true, name: playerName, id: v4() };
 
-    console.log(gameReady.dates);
-
     addToGames(gameReady);
     addPlayerGroup(gameId, gameDm);
 
@@ -85,23 +83,25 @@ const GamesPage = () => {
     <>
       <h1>Games</h1>
       <section className="flex flex-col justify-center items-center">
-        <div className="flex flex-col justify-center w-full gap-40">
+        <div className="flex flex-col justify-center w-full gap-28">
           {gameError && <strong>Error: {JSON.stringify(gameError)}</strong>}
           {gameLoading && <span>Loading Games...</span>}
           {gameValue &&
-            gameValue.docs.map((gm) => (
-              <GameTable
-                key={gm.data().id}
-                gm={gm}
-                today={today}
-                playersValue={playersValue}
-                playerFormVisible={playerFormVisible}
-                setPlayerFormVisible={setPlayerFormVisible}
-                addNewPlayer={addNewPlayer}
-                setFormVisible={setFormVisible}
-                playerFormInitial={playerFormInitial}
-              />
-            ))}
+            gameValue.docs
+              .sort((a, b) => (a.data().dates[0] > b.data().dates[0] ? 1 : -1))
+              .map((gm) => (
+                <GameTable
+                  key={gm.data().id}
+                  gm={gm}
+                  today={today}
+                  playersValue={playersValue}
+                  playerFormVisible={playerFormVisible}
+                  setPlayerFormVisible={setPlayerFormVisible}
+                  addNewPlayer={addNewPlayer}
+                  setFormVisible={setFormVisible}
+                  playerFormInitial={playerFormInitial}
+                />
+              ))}
         </div>
         <div>
           {formVisible ? (
@@ -149,7 +149,7 @@ const GamesPage = () => {
                   setPlayerFormVisible(playerFormInitial);
                 }}
               >
-                CLICK HERE
+                ADD NEW GAME
               </button>
             )
           )}

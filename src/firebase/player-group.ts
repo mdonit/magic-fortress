@@ -21,7 +21,6 @@ export const updatePlayerGroup = async (gameId: string, player: Player) => {
   let existingId = "";
   let players: Player[] = [];
 
-  // const dateNow: number = Date.now();
   querySnapshot.forEach((doc) => {
     if (doc.data().gameId === gameId) {
       existingId = doc.id;
@@ -34,23 +33,50 @@ export const updatePlayerGroup = async (gameId: string, player: Player) => {
   if (!foundPlayer) {
     player.id = v4();
     players.push(player);
-    console.log("NEW P");
   } else {
     players.map((pl) => {
-      if (pl.id === player.id) pl.name = player.name;
+      if (pl.id === player.id) {
+        pl.name = player.name;
+        pl.canPlay = player.canPlay;
+      }
     });
-    console.log("EDIT P");
   }
-
-  console.log("PLAYER", player);
-  console.log("PLAYERS", players);
 
   const gameRef = doc(fireStoreDb, collectionPath, existingId);
   await updateDoc(gameRef, { players: players });
 };
 
-export const deletePlayerGroup = async (id: string) => {
-  await deleteDoc(doc(fireStoreDb, collectionPath, id));
+export const deletePlayerGroup = async (gameId: string) => {
+  const querySnapshot = await getDocs(collection(fireStoreDb, collectionPath));
+  let existingId = "";
+
+  querySnapshot.forEach((doc) => {
+    if (doc.data().gameId === gameId) {
+      existingId = doc.id;
+      return;
+    }
+  });
+
+  await deleteDoc(doc(fireStoreDb, collectionPath, existingId));
+};
+
+export const deletePlayerFromGroup = async (gameId: string, playerId: string) => {
+  const querySnapshot = await getDocs(collection(fireStoreDb, collectionPath));
+  let existingId = "";
+  let players: Player[] = [];
+
+  querySnapshot.forEach((doc) => {
+    if (doc.data().gameId === gameId) {
+      existingId = doc.id;
+      players = doc.data().players;
+      return;
+    }
+  });
+
+  const updatedPlayers: Player[] = players.filter((pl) => pl.id !== playerId);
+
+  const gameRef = doc(fireStoreDb, collectionPath, existingId);
+  await updateDoc(gameRef, { players: updatedPlayers });
 };
 
 export const getPlayerGroup = async () => {
