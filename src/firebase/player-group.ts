@@ -4,12 +4,13 @@ import { v4 } from "uuid";
 
 const collectionPath = "playergroup";
 
-export const addPlayerGroup = async (gameId: string, player: Player) => {
+export const addPlayerGroup = async (gameId: string, groupName: string, player: Player) => {
   const group: Player[] = [];
   group.push(player);
 
   const newPlayerGroup: PlayerGroup = {
     gameId,
+    groupName,
     players: group,
   };
 
@@ -38,6 +39,7 @@ export const updatePlayerGroup = async (gameId: string, player: Player) => {
       if (pl.id === player.id) {
         pl.name = player.name;
         pl.canPlay = player.canPlay;
+        // pl.timeSet = player.timeSet;
       }
     });
   }

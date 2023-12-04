@@ -4,10 +4,6 @@ import { fireStoreDb } from "./config";
 const collectionPath = "games";
 
 export const addToGames = async (newGame: Game) => {
-  // const dateNow: number = Date.now();
-
-  console.log(newGame.dates);
-
   const addedGame: Game = {
     id: newGame.id,
     title: newGame.title,
@@ -15,6 +11,7 @@ export const addToGames = async (newGame: Game) => {
     dmName: newGame.dmName,
     notes: newGame.notes,
     dates: newGame.dates,
+    startAt: newGame.startAt,
   };
   await addDoc(collection(fireStoreDb, collectionPath), addedGame);
 };

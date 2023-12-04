@@ -4,6 +4,7 @@ import { DocumentData, QueryDocumentSnapshot, QuerySnapshot } from "firebase/fir
 import React, { Dispatch, SetStateAction, useState, useRef, useEffect } from "react";
 import { FaCrown, FaEdit } from "react-icons/fa";
 import { MdDone, MdDelete, MdClose } from "react-icons/md";
+import TimeSelection from "./TimeSelection";
 
 type PlayerForm = {
   visible: boolean;
@@ -19,6 +20,7 @@ type TimeTable = {
   setPlayerFormVisible: Dispatch<SetStateAction<PlayerForm>>;
   addNewPlayer: (e: React.FormEvent<HTMLFormElement>, gameId: string, player: Player) => void;
   setFormVisible: Dispatch<SetStateAction<boolean>>;
+  playerInitial: Player;
 };
 
 type IsEditName = {
@@ -31,16 +33,9 @@ const isEditNameInit: IsEditName = {
   editId: "",
 };
 
-const playerInitial: Player = {
-  id: "",
-  name: "",
-  isDm: false,
-  canPlay: ["Maybe", "Maybe", "Maybe", "Maybe", "Maybe", "Maybe", "Maybe"],
-};
-
 const dayNames = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
-const GameTable = ({ gm, today, playersValue, playerFormVisible, setPlayerFormVisible, addNewPlayer, setFormVisible, playerFormInitial }: TimeTable) => {
+const GameTable = ({ gm, today, playersValue, playerFormVisible, setPlayerFormVisible, addNewPlayer, setFormVisible, playerFormInitial, playerInitial }: TimeTable) => {
   const [newPlayer, setNewPlayer] = useState<Player>(playerInitial);
   const [isEdit, setIsEdit] = useState<IsEditName>(isEditNameInit);
   const [isNameInput, setIsNameInput] = useState<boolean>(false);
@@ -59,10 +54,27 @@ const GameTable = ({ gm, today, playersValue, playerFormVisible, setPlayerFormVi
   const editAvailabilityHandler = (e: React.ChangeEvent<HTMLSelectElement>, gameId: string, index: number, player: Player) => {
     e.preventDefault();
 
+    const checkOption: string = e.target.value;
+    let chosenOption;
+    // const isTimeSet: boolean[] = player.timeSet;
+    let timeOption: PlayTime = { hours: 20, minutes: 30 };
+
+    if (checkOption === "If") {
+      chosenOption = timeOption;
+      // isTimeSet.map((tm, i) => {
+      //   if (i === index) {
+      //     isTimeSet[i] = true;
+      //     return;
+      //   }
+      // });
+    } else chosenOption = e.target.value;
+
     let editedAvailability: CanPlay[] = player.canPlay;
-    editedAvailability[index] = e.target.value as CanPlay;
+    editedAvailability[index] = chosenOption as CanPlay;
 
     const editedPlayer: Player = { ...player, canPlay: editedAvailability };
+    // const editedPlayer: Player = { ...player, canPlay: editedAvailability, timeSet: isTimeSet };
+
     updatePlayerGroup(gameId, editedPlayer);
   };
 
@@ -91,6 +103,9 @@ const GameTable = ({ gm, today, playersValue, playerFormVisible, setPlayerFormVi
         <div>
           <h2>{gm.data().title}</h2>
           <h3>{gm.data().type}</h3>
+          <h4>
+            {gm.data().startAt.hours}:{gm.data().startAt.minutes}
+          </h4>
         </div>
         <div>
           <p>{gm.data().notes}</p>
@@ -146,6 +161,7 @@ const GameTable = ({ gm, today, playersValue, playerFormVisible, setPlayerFormVi
                       onClick={() => {
                         setEditName(pl.name);
                         setNewPlayer({ id: pl.id, name: pl.name, canPlay: pl.canPlay, isDm: pl.isDm });
+                        // setNewPlayer({ id: pl.id, name: pl.name, canPlay: pl.canPlay, isDm: pl.isDm, timeSet: pl.timeSet });
                         setIsEdit({ isEditing: true, editId: pl.id });
                         setPlayerFormVisible(playerFormInitial);
                         setNewPlayer(playerInitial);
@@ -156,12 +172,16 @@ const GameTable = ({ gm, today, playersValue, playerFormVisible, setPlayerFormVi
                   </li>
                 )}
                 {pl.canPlay.map((cp, index) => (
-                  <li key={pl.id + index} className="flex justify-center">
-                    <select name="availability" onChange={(e) => editAvailabilityHandler(e, gm.data().id, index, pl)} defaultValue={cp}>
-                      <option value="Maybe">Maybe</option>
-                      <option value="Yes">Yes</option>
-                      <option value="No">No</option>
-                    </select>
+                  <li key={pl.id + index} className="flex justify-center gap-2 flex-col">
+                    <div className="flex justify-center gap-4">
+                      <select onChange={(e) => editAvailabilityHandler(e, gm.data().id, index, pl)} defaultValue={typeof cp !== "string" ? "If" : cp.toString()}>
+                        <option value="Yes">Yes</option>
+                        <option value="No">No</option>
+                        <option value="If">If...</option>
+                      </select>
+                      {typeof cp !== "string" && <TimeSelection startAt={cp} player={pl} gameId={gm.data().id} timeIndex={index} />}
+                    </div>
+                    {typeof cp !== "string" && <span>{`${cp.hours}:${cp.minutes}`}</span>}
                   </li>
                 ))}
               </ul>

@@ -8,7 +8,7 @@ import styles from "@styles/gametable.module.css";
 import { v4 } from "uuid";
 import getWeekDates from "@lib/getWeekDates";
 import { addToGames } from "@firebase/games";
-import { addPlayerGroup, updatePlayerGroup } from "@firebase/player-group";
+import { addPlayerGroup, getPlayerGroup, updatePlayerGroup } from "@firebase/player-group";
 import GameTable from "@components/GameTable";
 
 type PlayerForm = {
@@ -16,12 +16,15 @@ type PlayerForm = {
   id: string;
 };
 
-// const dayNames = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+const startAtHours: number[] = [7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21];
+const startAtMinutes: number[] = [0, 15, 30, 45];
+
 const playerInitial: Player = {
   id: "",
   name: "",
   isDm: false,
-  canPlay: ["Maybe", "Maybe", "Maybe", "Maybe", "Maybe", "Maybe", "Maybe"],
+  // timeSet: [false, false, false, false, false, false, false],
+  canPlay: ["No", "No", "No", "No", "No", "No", "No"],
 };
 const newGameInitial: Game = {
   id: "",
@@ -29,6 +32,7 @@ const newGameInitial: Game = {
   type: "DnD",
   dmName: "",
   notes: "",
+  startAt: { hours: 20, minutes: 30 },
   dates: getWeekDates(),
 };
 const playerFormInitial: PlayerForm = {
@@ -39,10 +43,10 @@ const playerFormInitial: PlayerForm = {
 const GamesPage = () => {
   const currentDay = new Date();
   const currentDayFormat: string = `${currentDay.getFullYear()}-${currentDay.getMonth() + 1}-${currentDay.getDate()}`;
-
   const [today, setToday] = useState<number>(0);
 
-  const [formVisible, setFormVisible] = useState<boolean>(false);
+  const [gameFormVisible, setGameFormVisible] = useState<boolean>(false);
+  const [duplicateFormVisible, setDuplicateFormVisible] = useState<boolean>(false);
   const [playerFormVisible, setPlayerFormVisible] = useState<PlayerForm>(playerFormInitial);
   const [playerName, setPlayerName] = useState<string>("");
   const [newGame, setNewGame] = useState<Game>(newGameInitial);
@@ -60,13 +64,13 @@ const GamesPage = () => {
 
   const addNewGame = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setFormVisible(false);
+    setGameFormVisible(false);
     const gameId = v4();
     const gameReady: Game = { ...newGame, id: gameId };
     const gameDm: Player = { ...playerInitial, isDm: true, name: playerName, id: v4() };
 
     addToGames(gameReady);
-    addPlayerGroup(gameId, gameDm);
+    addPlayerGroup(gameId, "Group Name", gameDm);
 
     setPlayerName("");
     setNewGame(newGameInitial);
@@ -98,13 +102,14 @@ const GamesPage = () => {
                   playerFormVisible={playerFormVisible}
                   setPlayerFormVisible={setPlayerFormVisible}
                   addNewPlayer={addNewPlayer}
-                  setFormVisible={setFormVisible}
+                  setFormVisible={setGameFormVisible}
                   playerFormInitial={playerFormInitial}
+                  playerInitial={playerInitial}
                 />
               ))}
         </div>
         <div>
-          {formVisible ? (
+          {gameFormVisible ? (
             <form onSubmit={(e) => addNewGame(e)}>
               <div>
                 <label htmlFor="gameTitle">Game Title</label>
@@ -123,16 +128,35 @@ const GamesPage = () => {
                   }}
                 />
                 <label htmlFor="gameNotes">Notes</label>
-                <input type="text" id="gameNotes" placeholder="e.g. Ne felejtsetek el lootolni!" onChange={(e) => setNewGame((prev) => ({ ...prev, notes: e.target.value.trim() }))} />
+                <input type="text" id="gameNotes" placeholder="e.g. grab food and drinks!" onChange={(e) => setNewGame((prev) => ({ ...prev, notes: e.target.value.trim() }))} />
                 <label htmlFor="gameDate">Start Date</label>
                 <input type="date" id="gameDate" name="session-start" onChange={(e) => setNewGame({ ...newGame, dates: getWeekDates(e.target.value) })} defaultValue={currentDayFormat} />
+                <fieldset>
+                  <legend>Start Time</legend>
+                  <label htmlFor="gameHours">Hours</label>
+                  <select id="gameHours" defaultValue={20} onChange={(e) => setNewGame((prev) => ({ ...prev, startAt: { hours: Number(e.target.value), minutes: prev.startAt.minutes } }))}>
+                    {startAtHours.map((sH) => (
+                      <option key={sH + "hour"} value={sH}>
+                        {sH}
+                      </option>
+                    ))}
+                  </select>
+                  <label htmlFor="gameMinutes">Minutes</label>
+                  <select id="gameMinutes" defaultValue={30} onChange={(e) => setNewGame((prev) => ({ ...prev, startAt: { hours: prev.startAt.hours, minutes: Number(e.target.value) } }))}>
+                    {startAtMinutes.map((sM) => (
+                      <option key={sM + "min"} value={sM}>
+                        {sM}
+                      </option>
+                    ))}
+                  </select>
+                </fieldset>
               </div>
               <div>
                 <button type="submit">Save</button>
                 <button
                   type="button"
                   onClick={() => {
-                    setFormVisible(false);
+                    setGameFormVisible(false);
                     setPlayerName("");
                   }}
                 >
@@ -145,7 +169,7 @@ const GamesPage = () => {
               <button
                 type="button"
                 onClick={() => {
-                  setFormVisible(true);
+                  setGameFormVisible(true);
                   setPlayerFormVisible(playerFormInitial);
                 }}
               >
