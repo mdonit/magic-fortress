@@ -16,6 +16,11 @@ export const addToGames = async (newGame: Game) => {
   await addDoc(collection(fireStoreDb, collectionPath), addedGame);
 };
 
+export const updateGame = async (docId: string, title: string, type: string, startAt: PlayTime, notes: string) => {
+  const gameRef = doc(fireStoreDb, collectionPath, docId);
+  await updateDoc(gameRef, { title, type, startAt, notes });
+};
+
 export const deleteFromGames = async (id: string) => {
   await deleteDoc(doc(fireStoreDb, collectionPath, id));
 };

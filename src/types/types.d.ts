@@ -14,7 +14,6 @@ type Player = {
   id: string;
   name: string;
   isDm: boolean;
-  // timeSet: boolean[];
   canPlay: CanPlay[];
 };
 
