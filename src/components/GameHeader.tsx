@@ -1,7 +1,8 @@
 import { deleteFromGames, updateGame } from "@firebase/games";
 import { deletePlayerGroup } from "@firebase/player-group";
 import React, { useState, useRef, useEffect } from "react";
-import { MdDone, MdDelete, MdClose, MdEdit } from "react-icons/md";
+import { MdDone, MdDelete, MdClose } from "react-icons/md";
+import { FaEdit } from "react-icons/fa";
 
 type GameData = {
   startAt: PlayTime;
@@ -48,18 +49,18 @@ const GameHeader = ({ startAt, title, type, docId, gameId, notes }: GameData) =>
     <div className="grid grid-cols-2">
       <div className="flex justify-start gap-8">
         {isEditContent.isEditing && isEditContent.editId === gameId ? (
-          <form className="flex gap-2" onSubmit={(e) => changeGameDetails(e)}>
+          <form className="flex gap-6" onSubmit={(e) => changeGameDetails(e)}>
             <div>
-              <div>
+              <div className="flex gap-6">
                 <label htmlFor="editTitle">Title</label>
                 <input type="text" id="editTitle" required placeholder="e.g. Lost Mines of Magic Fortress" defaultValue={title} onChange={(e) => setEditTitle(e.target.value.trim())} />
               </div>
-              <div>
+              <div className="flex gap-6">
                 <label htmlFor="editType">Type</label>
                 <input type="text" id="editType" required placeholder="e.g. DnD, BitD" defaultValue={type} onChange={(e) => setEditType(e.target.value.trim())} />
               </div>
-              <fieldset>
-                <legend>Start Time</legend>
+              <fieldset className="flex gap-4 items-center">
+                <legend className="hidden">Start Time</legend>
                 <label htmlFor="editHours">Hours</label>
                 <select id="editHours" defaultValue={startAt.hours} onChange={(e) => setEditTime((prev) => ({ hours: Number(e.target.value), minutes: prev.minutes }))}>
                   {startAtHours.map((sH) => (
@@ -78,16 +79,16 @@ const GameHeader = ({ startAt, title, type, docId, gameId, notes }: GameData) =>
                 </select>
               </fieldset>
             </div>
-            <div>
+            <div className="flex gap-6 items-start">
               <label htmlFor="editNotes">Notes</label>
               <input type="text" id="editNotes" defaultValue={notes} onChange={(e) => setEditNotes(e.target.value.trim())} />
             </div>
             <div className="flex items-start gap-4">
               <button type="submit">
-                <MdDone size={35} />
+                <MdDone size={35} className="hover:text-indigo-600" />
               </button>
               <button type="button" onClick={() => setIsEditContent(isEditContentInit)}>
-                <MdClose size={35} />
+                <MdClose size={35} className="hover:text-red-600" />
               </button>
             </div>
           </form>
@@ -109,11 +110,11 @@ const GameHeader = ({ startAt, title, type, docId, gameId, notes }: GameData) =>
       <div className="top-2 right-2 absolute flex gap-4 items-center">
         {!isEditContent.isEditing && (
           <button type="button">
-            <MdEdit size={30} onClick={() => setIsEditContent({ isEditing: true, editId: gameId })} />
+            <FaEdit size={30} onClick={() => setIsEditContent({ isEditing: true, editId: gameId })} className="hover:text-violet-600" />
           </button>
         )}
         <button type="button">
-          <MdDelete size={30} onClick={() => deleteGameHandler(docId, gameId)} />
+          <MdDelete size={30} onClick={() => deleteGameHandler(docId, gameId)} className="hover:text-red-600" />
         </button>
       </div>
     </div>

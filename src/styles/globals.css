@@ -30,6 +30,33 @@ textarea {
   font-family: inherit;
 }
 
+input {
+  outline: none;
+  background-color: inherit;
+  border-bottom: 2px solid black;
+  border-radius: 5px;
+}
+
+input::placeholder {
+  color: rgb(132, 122, 189);
+}
+
+select {
+  padding: 0.5rem;
+  border-radius: 5px;
+  background-color: inherit;
+  outline: none;
+  border-bottom: 2px solid black;
+}
+
+button {
+  transition: all 0.2s ease;
+}
+
+button:hover {
+  transform: scale(1.2);
+}
+
 body {
   display: flex;
   flex-direction: column;

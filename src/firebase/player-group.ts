@@ -4,17 +4,20 @@ import { v4 } from "uuid";
 
 const collectionPath = "playergroup";
 
-export const addPlayerGroup = async (gameId: string, groupName: string, player: Player) => {
+export const addPlayerGroup = async (gameId: string, player: Player) => {
   const group: Player[] = [];
   group.push(player);
 
   const newPlayerGroup: PlayerGroup = {
     gameId,
-    groupName,
     players: group,
   };
 
   await addDoc(collection(fireStoreDb, collectionPath), newPlayerGroup);
+};
+
+export const copyPlayerGroup = async (copiedPlayerGroup: PlayerGroup) => {
+  await addDoc(collection(fireStoreDb, collectionPath), copiedPlayerGroup);
 };
 
 export const updatePlayerGroup = async (gameId: string, player: Player) => {
@@ -39,7 +42,6 @@ export const updatePlayerGroup = async (gameId: string, player: Player) => {
       if (pl.id === player.id) {
         pl.name = player.name;
         pl.canPlay = player.canPlay;
-        // pl.timeSet = player.timeSet;
       }
     });
   }
@@ -81,6 +83,6 @@ export const deletePlayerFromGroup = async (gameId: string, playerId: string) =>
   await updateDoc(gameRef, { players: updatedPlayers });
 };
 
-export const getPlayerGroup = async () => {
+export const getPlayerGroups = async () => {
   return await getDocs(collection(fireStoreDb, collectionPath));
 };

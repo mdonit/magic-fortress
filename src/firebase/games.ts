@@ -8,7 +8,6 @@ export const addToGames = async (newGame: Game) => {
     id: newGame.id,
     title: newGame.title,
     type: newGame.type,
-    dmName: newGame.dmName,
     notes: newGame.notes,
     dates: newGame.dates,
     startAt: newGame.startAt,
