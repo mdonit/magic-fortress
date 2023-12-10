@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { useCollection } from "react-firebase-hooks/firestore";
 import { collection, getFirestore } from "firebase/firestore";
 import { app } from "@firebase/config";
-import styles from "@styles/gametable.module.css";
 import { v4 } from "uuid";
 import getWeekDates from "@lib/getWeekDates";
 import { addToGames } from "@firebase/games";
@@ -73,16 +72,16 @@ const GamesPage = () => {
   return (
     <>
       <h1 className="hidden">Games</h1>
+      {gameLoading && (
+        <div>
+          <span className="flex items-center gap-2">
+            Loading Games... <AiOutlineLoading3Quarters className="text-rose-500 animate-spin" size={20} />
+          </span>
+        </div>
+      )}
       <section className="flex flex-col max-w-[90vw] overflow-scroll">
         <div className="flex flex-col gap-28 w-max">
           {gameError && <strong>Error: {JSON.stringify(gameError)}</strong>}
-          {gameLoading && (
-            <div className="no-scrollbar">
-              <span className="flex items-center gap-2">
-                Loading Games... <AiOutlineLoading3Quarters className="text-rose-500 animate-spin" size={20} />
-              </span>
-            </div>
-          )}
           {gameValue &&
             gameValue.docs
               .sort((a, b) => (a.data().timestamp > b.data().timestamp ? 1 : -1))
