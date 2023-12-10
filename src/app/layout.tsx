@@ -5,9 +5,9 @@ import "@styles/globals.css";
 import Navigation from "@components/Navigation";
 import FooterContent from "@components/FooterContent";
 
-const metadata: Metadata = {
-  title: "Magic Fortress App",
-  description: "A social app for my beloved friends group ^^",
+export const metadata: Metadata = {
+  title: "Magic Fortress",
+  description: "A social platform for my beloved friend group ^^",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
