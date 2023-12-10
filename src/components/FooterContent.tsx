@@ -1,19 +1,12 @@
 import React from "react";
-import styles from "@styles/footer.module.css";
 
 const FooterContent = () => {
   return (
-    <div className={styles.footer}>
-      <div className={styles["footer-top"]}>
+    <div className="flex flex-col justify-center items-center">
+      <div className="flex flex-col items-center">
         <span>Magic Fortress</span>
-        {/* <span>Made with Next.js</span> */}
-        {/* <span>
-          <a href="https://github.com/mdonit/doniblog" target="_blank">
-            Github Link
-          </a>
-        </span> */}
       </div>
-      <span className={styles["footer-bottom"]}>Copyright &copy; Donát Maráki. All Rights Reserved</span>
+      <span className="text-sm text-center">Copyright &copy; Donát Maráki. All Rights Reserved</span>
     </div>
   );
 };

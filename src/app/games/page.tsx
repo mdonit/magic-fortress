@@ -10,6 +10,7 @@ import getWeekDates from "@lib/getWeekDates";
 import { addToGames } from "@firebase/games";
 import { addPlayerGroup, updatePlayerGroup } from "@firebase/player-group";
 import GameTable from "@components/GameTable";
+import { AiOutlineLoading3Quarters } from "react-icons/ai";
 
 const startAtHours: number[] = [7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21];
 const startAtMinutes: number[] = [0, 15, 30, 45];
@@ -27,6 +28,7 @@ const newGameInitial: Game = {
   notes: "",
   startAt: { hours: 20, minutes: 30 },
   dates: getWeekDates(),
+  timestamp: 0,
 };
 
 const GamesPage = () => {
@@ -70,14 +72,20 @@ const GamesPage = () => {
 
   return (
     <>
-      <h1>Games</h1>
-      <section className="flex flex-col justify-center items-center">
-        <div className="flex flex-col justify-center w-full gap-28">
+      <h1 className="hidden">Games</h1>
+      <section className="flex flex-col max-w-[90vw] overflow-scroll">
+        <div className="flex flex-col gap-28 w-max">
           {gameError && <strong>Error: {JSON.stringify(gameError)}</strong>}
-          {gameLoading && <span>Loading Games...</span>}
+          {gameLoading && (
+            <div className="no-scrollbar">
+              <span className="flex items-center gap-2">
+                Loading Games... <AiOutlineLoading3Quarters className="text-rose-500 animate-spin" size={20} />
+              </span>
+            </div>
+          )}
           {gameValue &&
             gameValue.docs
-              .sort((a, b) => (a.data().dates[0] > b.data().dates[0] ? 1 : -1))
+              .sort((a, b) => (a.data().timestamp > b.data().timestamp ? 1 : -1))
               .map((gm) => (
                 <GameTable
                   key={gm.data().id}
@@ -91,7 +99,7 @@ const GamesPage = () => {
                 />
               ))}
         </div>
-        <div>
+        <div className="flex justify-center">
           {gameFormVisible ? (
             <form onSubmit={(e) => addNewGame(e)} className="flex flex-col mt-16">
               <div className="grid grid-cols-2 gap-4">
@@ -135,7 +143,7 @@ const GamesPage = () => {
                   </select>
                 </fieldset>
               </div>
-              <div className="flex gap-4">
+              <div className="flex gap-4 mt-4 mb-7 justify-center">
                 <button type="submit" className="px-3 py-1 mt-4 rounded-md bg-indigo-400">
                   Save
                 </button>
@@ -158,7 +166,7 @@ const GamesPage = () => {
                 onClick={() => {
                   setGameFormVisible(true);
                 }}
-                className="px-3 py-1 mt-7 rounded-md bg-rose-400"
+                className="px-3 py-1 mt-7 mb-7 rounded-md bg-rose-400"
               >
                 ADD NEW GAME
               </button>

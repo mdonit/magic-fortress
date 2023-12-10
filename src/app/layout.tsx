@@ -1,7 +1,6 @@
 "use client";
 
 import type { Metadata } from "next";
-import { AuthContextProvider } from "@context/AuthContext";
 import "@styles/globals.css";
 import Navigation from "@components/Navigation";
 import FooterContent from "@components/FooterContent";
@@ -18,7 +17,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <header>
           <Navigation />
         </header>
-        <main>{children}</main>
+        <main className="flex justify-center">{children}</main>
         <footer>
           <FooterContent />
         </footer>

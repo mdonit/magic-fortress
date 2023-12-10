@@ -110,6 +110,7 @@ const GameTable = ({ gm, today, playersValue, addNewPlayer, setFormVisible, play
       notes: gm.data().notes,
       dates: duplicateDates,
       startAt: gm.data().startAt,
+      timestamp: 0,
     };
 
     const copiedPlayerGroup: PlayerGroup = {

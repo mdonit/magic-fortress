@@ -29,4 +29,5 @@ type Game = {
   notes: string;
   dates: string[];
   startAt: PlayTime;
+  timestamp: number;
 };
