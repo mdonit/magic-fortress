@@ -74,12 +74,12 @@ const GamesPage = () => {
       <h1 className="hidden">Games</h1>
       {gameLoading && (
         <div>
-          <span className="flex items-center gap-2">
-            Loading Games... <AiOutlineLoading3Quarters className="text-rose-500 animate-spin" size={20} />
+          <span className="flex items-center gap-2  text-xl">
+            Loading Games... <AiOutlineLoading3Quarters className="text-rose-500 animate-spin" size={30} />
           </span>
         </div>
       )}
-      <section className="flex flex-col max-w-[90vw] overflow-scroll">
+      <section className={`flex flex-col max-w-[90vw] ${gameValue && gameValue.docs.length > 0 && "overflow-scroll"}`}>
         <div className="flex flex-col gap-28 w-max">
           {gameError && <strong>Error: {JSON.stringify(gameError)}</strong>}
           {gameValue &&
@@ -165,7 +165,7 @@ const GamesPage = () => {
                 onClick={() => {
                   setGameFormVisible(true);
                 }}
-                className="px-3 py-1 mt-7 mb-7 rounded-md bg-rose-400"
+                className="px-3 py-1 m-7 rounded-md bg-rose-400"
               >
                 ADD NEW GAME
               </button>

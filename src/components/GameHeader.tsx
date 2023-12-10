@@ -94,14 +94,20 @@ const GameHeader = ({ startAt, title, type, docId, gameId, notes }: GameData) =>
           </form>
         ) : (
           <>
-            <div>
-              <h2>{title}</h2>
-              <h3>{type}</h3>
+            <div className=" flex flex-col gap-2">
+              <h2>
+                <b>{title}</b>
+              </h2>
+              <h3>
+                <b>{type}</b>
+              </h3>
               <h4>
-                {startAt.hours}:{startAt.minutes === 0 ? startAt.minutes + "0" : startAt.minutes}
+                <b>
+                  {startAt.hours}:{startAt.minutes === 0 ? startAt.minutes + "0" : startAt.minutes}
+                </b>
               </h4>
             </div>
-            <div>
+            <div className="break-all max-w-[20rem]">
               <p>{notes}</p>
             </div>
           </>

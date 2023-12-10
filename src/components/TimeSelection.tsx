@@ -37,7 +37,7 @@ const TimeSelection = ({ player, gameId, timeIndex }: SelectTime) => {
     <form onSubmit={(e) => updateTime(e)} className="grid grid-rows-2 justify-items-center items-center">
       <div className="flex gap-2">
         <select
-          defaultValue={typeof startTime !== "string" ? `${startTime.hours}` : "Hours"}
+          value={selectedTime.hours}
           onChange={(e) => {
             setSelectedTime({ ...selectedTime, hours: Number(e.target.value) });
             setTimeChanged(true);
@@ -51,7 +51,7 @@ const TimeSelection = ({ player, gameId, timeIndex }: SelectTime) => {
           ))}
         </select>
         <select
-          defaultValue={typeof startTime !== "string" ? `${startTime.minutes}` : "Minutes"}
+          value={selectedTime.minutes}
           onChange={(e) => {
             setSelectedTime({ ...selectedTime, minutes: Number(e.target.value) });
             setTimeChanged(true);

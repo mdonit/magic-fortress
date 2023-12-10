@@ -103,8 +103,11 @@ footer p {
   width: 0;
   height: 0;
 }
+::-webkit-scrollbar-corner {
+  background-color: transparent;
+}
 
-@media (max-width: 1440px) {
+@media (max-width: 1466px) {
   ::-webkit-scrollbar {
     display: block;
     width: 10px;
@@ -112,9 +115,11 @@ footer p {
   }
   ::-webkit-scrollbar-track {
     background-color: rgb(110, 97, 93);
+    border-radius: 10px;
   }
   ::-webkit-scrollbar-thumb {
     background-color: rgb(175, 101, 80);
+    border-radius: 10px;
   }
   ::-webkit-scrollbar-thumb:hover {
     background-color: rgb(255, 48, 33);

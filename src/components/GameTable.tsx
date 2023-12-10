@@ -130,7 +130,10 @@ const GameTable = ({ gm, today, playersValue, addNewPlayer, setFormVisible, play
         <ul className="grid grid-cols-8">
           <li></li>
           {dayNames.map((day, index) => (
-            <li key={gm.data().id + index} className={`flex justify-center pb-3 ${today === index && "font-bold flex justify-center pb-3"}`}>{`${day} (${gm.data().dates[index]})`}</li>
+            <li key={gm.data().id + index} className={`flex flex-col items-center justify-center pb-3 ${today === index && "font-bold flex justify-center pb-3"}`}>
+              <span>{day}</span>
+              <span>{`(${gm.data().dates[index]})`}</span>
+            </li>
           ))}
         </ul>
         {playersValue &&
@@ -168,13 +171,11 @@ const GameTable = ({ gm, today, playersValue, addNewPlayer, setFormVisible, play
                     </form>
                   </li>
                 ) : (
-                  <li className="flex gap-4 items-center justify-end pr-4 border-r-2 border-stone-500">
-                    {pl.isDm && (
-                      <div>
-                        <LiaCrownSolid size={35} className="bg-amber-300 rounded-full p-1" />
-                      </div>
-                    )}
-                    <span className="text-xl">{pl.name}</span>
+                  <li className="flex gap-4 items-center w-[10rem] justify-end pr-4">
+                    <div className="flex flex-col items-center break-all">
+                      {pl.isDm && <LiaCrownSolid size={35} className="bg-amber-300 rounded-full p-1" />}
+                      <span className="text-xl text-center max-h-16 max-w-24 overflow-hidden">{pl.name}</span>
+                    </div>
                     <button type="button">
                       <FaEdit
                         size={25}
@@ -189,15 +190,20 @@ const GameTable = ({ gm, today, playersValue, addNewPlayer, setFormVisible, play
                         className="hover:text-violet-600"
                       />
                     </button>
-                    <button type="button">
-                      <MdDelete size={25} onClick={() => deletePlayerHandler(gm.data().id, pl.id)} className="hover:text-red-600" />
-                    </button>
+                    {!pl.isDm && (
+                      <button type="button">
+                        <MdDelete size={25} onClick={() => deletePlayerHandler(gm.data().id, pl.id)} className="hover:text-red-600" />
+                      </button>
+                    )}
                   </li>
                 )}
                 {pl.canPlay.map((cp, index) => (
-                  <li key={pl.id + index} className={`flex justify-center gap-2 flex-col ${typeof cp !== "string" ? "bg-amber-300" : cp === "Yes" ? "bg-green-400" : "bg-red-400"}`}>
+                  <li
+                    key={pl.id + index}
+                    className={`flex w-[13rem] justify-center gap-2 flex-col border-l-2 border-stone-500 ${typeof cp !== "string" ? "bg-amber-300" : cp === "Yes" ? "bg-green-400" : "bg-red-400"}`}
+                  >
                     <div className="grid justify-center gap-2 items-center">
-                      <select onChange={(e) => editAvailabilityHandler(e, gm.data().id, index, pl)} defaultValue={typeof cp !== "string" ? "If" : cp.toString()}>
+                      <select onChange={(e) => editAvailabilityHandler(e, gm.data().id, index, pl)} value={typeof cp !== "string" ? "If" : cp}>
                         <option value="Yes">Yes</option>
                         <option value="No">No</option>
                         <option value="If">If...</option>
