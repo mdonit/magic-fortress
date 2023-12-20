@@ -37,18 +37,6 @@ const getWeekDates = (selectedDate?: string) => {
     formatDate(thisDate, 5, options, true),
     formatDate(thisDate, -1, options, false),
   ];
-
-  // const nextWeek: string[] = [
-  //   formatDate(thisDate, 1, options, false),
-  //   formatDate(thisDate, 2, options, false),
-  //   formatDate(thisDate, 3, options, false),
-  //   formatDate(thisDate, 4, options, false),
-  //   formatDate(thisDate, 5, options, false),
-  //   formatDate(thisDate, 6, options, false),
-  //   formatDate(thisDate, 0, options, false),
-  // ];
-
-  //  var next = new Date(now.getFullYear(), now.getMonth(), now.getDate()+(8 - now.getDay()));
   return thisWeek;
 };
 

@@ -11,6 +11,7 @@ import getWeekDates from "@lib/getWeekDates";
 import { v4 } from "uuid";
 
 type TimeTable = {
+  elementId: number;
   gm: QueryDocumentSnapshot<DocumentData, DocumentData>;
   today: number;
   playersValue: QuerySnapshot<DocumentData, DocumentData> | undefined;
@@ -40,9 +41,9 @@ const isEditContentInit: IsEditContent = {
   editId: "",
 };
 
-const dayNames = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+const dayNames = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
 
-const GameTable = ({ gm, today, playersValue, addNewPlayer, setFormVisible, playerInitial, currentDayFormat }: TimeTable) => {
+const GameTable = ({ elementId, gm, today, playersValue, addNewPlayer, setFormVisible, playerInitial, currentDayFormat }: TimeTable) => {
   const [newPlayer, setNewPlayer] = useState<Player>(playerInitial);
   const [isNameInput, setIsNameInput] = useState<boolean>(false);
   const [duplicateDates, setDuplicateDates] = useState<string[]>(getWeekDates());
@@ -69,7 +70,7 @@ const GameTable = ({ gm, today, playersValue, addNewPlayer, setFormVisible, play
 
     const checkOption: string = e.target.value;
     let chosenOption;
-    let timeOption: PlayTime = { hours: 20, minutes: 30 };
+    let timeOption: PlayIf = { fromTime: "None", toTime: "None" };
 
     if (checkOption === "If") {
       chosenOption = timeOption;
@@ -123,10 +124,10 @@ const GameTable = ({ gm, today, playersValue, addNewPlayer, setFormVisible, play
   };
 
   return (
-    <div className="bg-stone-400 rounded-lg p-4 text-lg relative border-l-8 border-rose-600">
+    <div id={`game${elementId}`} className="bg-stone-400 rounded-lg p-4 text-lg relative border-l-8 border-rose-600 w-[40rem] scroll-mt-[5rem]">
       <GameHeader startAt={gm.data().startAt} title={gm.data().title} type={gm.data().type} docId={gm.id} gameId={gm.data().id} notes={gm.data().notes} />
 
-      <div>
+      <div className="mb-[5rem]">
         <ul className="grid grid-cols-8">
           <li></li>
           {dayNames.map((day, index) => (
@@ -142,10 +143,10 @@ const GameTable = ({ gm, today, playersValue, addNewPlayer, setFormVisible, play
             .data()
             .players.sort((a: Player, b: Player) => (a.name > b.name ? 1 : -1))
             .map((pl: Player) => (
-              <ul className="grid grid-cols-8 h-40 justify-center border-t-2 border-stone-500" key={pl.id}>
+              <ul className="grid grid-cols-8 justify-center border-t-2 border-stone-500" key={pl.id}>
                 {isEditName.isEditing && isEditName.editId === pl.id ? (
-                  <li className="flex gap-4 justify-end pr-4">
-                    <form className="flex items-center gap-4" onSubmit={(e) => editNameHandler(e, gm.data().id, pl)}>
+                  <li className="flex flex-col items-center justify-center p-2 break-words max-w-[10rem] mr-4">
+                    <form onSubmit={(e) => editNameHandler(e, gm.data().id, pl)}>
                       <input
                         ref={editNameRef}
                         className="w-20"
@@ -155,54 +156,58 @@ const GameTable = ({ gm, today, playersValue, addNewPlayer, setFormVisible, play
                           setEditName(e.target.value);
                         }}
                       />
-                      <button type="submit">
-                        <MdDone size={30} className="hover:text-indigo-600" />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setIsEditName(isEditContentInit);
-                          setEditName("");
-                          setNewPlayer(playerInitial);
-                        }}
-                      >
-                        <MdClose size={30} className="hover:text-red-600" />
-                      </button>
+                      <div className="flex gap-2 bottom-0 mt-2 justify-center">
+                        <button type="submit">
+                          <MdDone size={30} className="hover:text-indigo-600" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setIsEditName(isEditContentInit);
+                            setEditName("");
+                            setNewPlayer(playerInitial);
+                          }}
+                        >
+                          <MdClose size={30} className="hover:text-red-600" />
+                        </button>
+                      </div>
                     </form>
                   </li>
                 ) : (
-                  <li className="flex gap-4 items-center w-[10rem] justify-end pr-4">
-                    <div className="flex flex-col items-center break-all">
+                  <li className="flex flex-col items-center justify-center p-2 break-words max-w-[10rem] mr-4">
+                    <div className="flex flex-col items-center">
                       {pl.isDm && <LiaCrownSolid size={35} className="bg-amber-300 rounded-full p-1" />}
-                      <span className="text-xl text-center max-h-16 max-w-24 overflow-hidden">{pl.name}</span>
+                      <span className="text-center">{pl.name}</span>
                     </div>
-                    <button type="button">
-                      <FaEdit
-                        size={25}
-                        onClick={() => {
-                          setEditName(pl.name);
-                          setNewPlayer({ id: pl.id, name: pl.name, canPlay: pl.canPlay, isDm: pl.isDm });
-                          setIsEditName({ isEditing: true, editId: pl.id });
-                          setPlayerFormVisible(isFormVisibleInit);
-                          setNewPlayer(playerInitial);
-                          setIsNameInput(false);
-                        }}
-                        className="hover:text-violet-600"
-                      />
-                    </button>
-                    {!pl.isDm && (
+                    <div className="flex gap-2 bottom-0 mt-2 justify-center">
                       <button type="button">
-                        <MdDelete size={25} onClick={() => deletePlayerHandler(gm.data().id, pl.id)} className="hover:text-red-600" />
+                        <FaEdit
+                          size={25}
+                          onClick={() => {
+                            setEditName(pl.name);
+                            setNewPlayer({ id: pl.id, name: pl.name, canPlay: pl.canPlay, isDm: pl.isDm });
+                            setIsEditName({ isEditing: true, editId: pl.id });
+                            setPlayerFormVisible(isFormVisibleInit);
+                            setNewPlayer(playerInitial);
+                            setIsNameInput(false);
+                          }}
+                          className="hover:text-violet-600"
+                        />
                       </button>
-                    )}
+                      {!pl.isDm && (
+                        <button type="button">
+                          <MdDelete size={25} onClick={() => deletePlayerHandler(gm.data().id, pl.id)} className="hover:text-red-600" />
+                        </button>
+                      )}
+                    </div>
                   </li>
                 )}
                 {pl.canPlay.map((cp, index) => (
                   <li
                     key={pl.id + index}
-                    className={`flex w-[13rem] justify-center gap-2 flex-col border-l-2 border-stone-500 ${typeof cp !== "string" ? "bg-amber-300" : cp === "Yes" ? "bg-green-400" : "bg-red-400"}`}
+                    className={`flex justify-center flex-col border-l-2 border-stone-500 ${typeof cp !== "string" ? "bg-amber-300" : cp === "Yes" ? "bg-green-400" : "bg-red-400"}`}
                   >
-                    <div className="grid justify-center gap-2 items-center">
+                    <div className="flex flex-col justify-center items-center">
                       <select onChange={(e) => editAvailabilityHandler(e, gm.data().id, index, pl)} value={typeof cp !== "string" ? "If" : cp}>
                         <option value="Yes">Yes</option>
                         <option value="No">No</option>
@@ -264,34 +269,34 @@ const GameTable = ({ gm, today, playersValue, addNewPlayer, setFormVisible, play
             </button>
           </form>
         )}
-        {!duplicateForm.visible && duplicateForm.id !== gm.data().id && !playerFormVisible.visible && playerFormVisible.id !== gm.data().id && (
-          <div className="mt-7 flex gap-7">
-            <button
-              type="button"
-              onClick={() => {
-                setPlayerFormVisible({ visible: true, id: gm.data().id });
-                setFormVisible(false);
-                setNewPlayer(playerInitial);
-                setIsEditName(isEditContentInit);
-                setIsNameInput(true);
-              }}
-              className="px-3 py-1 rounded-md bg-indigo-500"
-            >
-              Add Player
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setDuplicateForm({ visible: true, id: gm.data().id });
-                setFormVisible(false);
-              }}
-              className="px-3 py-1 rounded-md bg-amber-500"
-            >
-              Duplicate Group
-            </button>
-          </div>
-        )}
       </div>
+      {!duplicateForm.visible && duplicateForm.id !== gm.data().id && !playerFormVisible.visible && playerFormVisible.id !== gm.data().id && (
+        <div className="flex gap-7 absolute bottom-4">
+          <button
+            type="button"
+            onClick={() => {
+              setPlayerFormVisible({ visible: true, id: gm.data().id });
+              setFormVisible(false);
+              setNewPlayer(playerInitial);
+              setIsEditName(isEditContentInit);
+              setIsNameInput(true);
+            }}
+            className="px-3 py-1 rounded-md bg-indigo-500"
+          >
+            Add Player
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setDuplicateForm({ visible: true, id: gm.data().id });
+              setFormVisible(false);
+            }}
+            className="px-3 py-1 rounded-md bg-amber-500"
+          >
+            Duplicate Group
+          </button>
+        </div>
+      )}
     </div>
   );
 };

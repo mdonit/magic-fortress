@@ -8,7 +8,12 @@ type PlayTime = {
   minutes: number;
 };
 
-type CanPlay = "Yes" | "No" | PlayTime;
+type PlayIf = {
+  fromTime: "None" | PlayTime;
+  toTime: "None" | PlayTime;
+};
+
+type CanPlay = "Yes" | "No" | PlayIf;
 
 type Player = {
   id: string;

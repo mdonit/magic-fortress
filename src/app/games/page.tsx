@@ -68,26 +68,40 @@ const GamesPage = () => {
     e.preventDefault();
     updatePlayerGroup(gameId, player);
   };
-
+  //className={`flex flex-col ${gameValue && gameValue.docs.length > 0 && "overflow-scroll"}`}
   return (
     <>
-      <h1 className="hidden">Games</h1>
       {gameLoading && (
         <div>
-          <span className="flex items-center gap-2  text-xl">
+          <span className="flex items-center gap-2 text-xl">
             Loading Games... <AiOutlineLoading3Quarters className="text-rose-500 animate-spin" size={30} />
           </span>
         </div>
       )}
-      <section className={`flex flex-col max-w-[90vw] ${gameValue && gameValue.docs.length > 0 && "overflow-scroll"}`}>
-        <div className="flex flex-col gap-28 w-max">
+      <section className={`flex flex-col ${gameValue && gameValue.docs.length > 0 && "mobile-scroll"}`}>
+        <h1 className={`text-[1.5rem] block ${gameLoading && "hidden"}`}>Game List</h1>
+        <div className="flex gap-8 mb-8">
+          {gameValue &&
+            gameValue.docs.length >= 3 &&
+            gameValue.docs
+              .sort((a, b) => (a.data().timestamp > b.data().timestamp ? 1 : -1))
+              .map((gm, index) => (
+                <button type="button" key={"gameLink" + index} className="hover:text-indigo-600">
+                  <a href={`#game${index}`}>
+                    Game #{index + 1}: {gm.data().title}
+                  </a>
+                </button>
+              ))}
+        </div>
+        <div className={`grid grid-cols-1 gap-8 ${gameValue && gameValue.docs.length > 1 && "xl:grid-cols-2"}`}>
           {gameError && <strong>Error: {JSON.stringify(gameError)}</strong>}
           {gameValue &&
             gameValue.docs
               .sort((a, b) => (a.data().timestamp > b.data().timestamp ? 1 : -1))
-              .map((gm) => (
+              .map((gm, index) => (
                 <GameTable
                   key={gm.data().id}
+                  elementId={index}
                   gm={gm}
                   today={today}
                   playersValue={playersValue}
@@ -98,6 +112,13 @@ const GamesPage = () => {
                 />
               ))}
         </div>
+        {gameValue && gameValue.docs.length >= 3 && (
+          <span className="flex justify-center">
+            <button type="button" className="hover:text-indigo-600 block mt-4">
+              <a href="#">Back to Top</a>
+            </button>
+          </span>
+        )}
         <div className="flex justify-center">
           {gameFormVisible ? (
             <form onSubmit={(e) => addNewGame(e)} className="flex flex-col mt-16">
