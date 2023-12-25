@@ -14,11 +14,16 @@ import { AiOutlineLoading3Quarters } from "react-icons/ai";
 const startAtHours: number[] = [7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21];
 const startAtMinutes: number[] = [0, 15, 30, 45];
 
+const ifInitial: PlayIf = {
+  fromTime: "None",
+  toTime: "None",
+};
+
 const playerInitial: Player = {
   id: "",
   name: "",
   isDm: false,
-  canPlay: ["No", "No", "No", "No", "No", "No", "No"],
+  canPlay: [ifInitial, ifInitial, ifInitial, ifInitial, ifInitial, ifInitial, ifInitial],
 };
 const newGameInitial: Game = {
   id: "",
