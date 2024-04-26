@@ -9,6 +9,7 @@ import getWeekDates from "@lib/getWeekDates";
 import { addToGames } from "@firebase/games";
 import { addPlayerGroup, updatePlayerGroup } from "@firebase/player-group";
 import GameTable from "@components/GameTable";
+import Calendar from "@components/Calendar";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 
 const startAtHours: number[] = [7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21];
@@ -31,14 +32,14 @@ const newGameInitial: Game = {
   type: "DnD",
   notes: "",
   startAt: { hours: 20, minutes: 30 },
-  dates: getWeekDates(),
+  dates: getWeekDates(new Date()),
   timestamp: 0,
 };
 
 const GamesPage = () => {
   const currentDay = new Date();
   const currentDayFormat: string = `${currentDay.getFullYear()}-${currentDay.getMonth() + 1}-${currentDay.getDate()}`;
-  const [today, setToday] = useState<number>(0);
+  const [today, setToday] = useState<string>("");
 
   const [gameFormVisible, setGameFormVisible] = useState<boolean>(false);
   const [playerName, setPlayerName] = useState<string>("");
@@ -52,7 +53,7 @@ const GamesPage = () => {
   });
 
   useEffect(() => {
-    setToday(new Date().getDay() - 1);
+    setToday(`${currentDay.getMonth() + 1}/${currentDay.getDate()}`);
   }, []);
 
   const addNewGame = (e: React.FormEvent<HTMLFormElement>) => {
@@ -73,6 +74,11 @@ const GamesPage = () => {
     e.preventDefault();
     updatePlayerGroup(gameId, player);
   };
+
+  const changeGameDate = (changedDates: string[]) => {
+    setNewGame({ ...newGame, dates: changedDates });
+  };
+
   //className={`flex flex-col ${gameValue && gameValue.docs.length > 0 && "overflow-scroll"}`}
   return (
     <>
@@ -146,7 +152,7 @@ const GamesPage = () => {
                 <label htmlFor="gameNotes">Notes</label>
                 <input type="text" id="gameNotes" placeholder="e.g. grab food and drinks!" onChange={(e) => setNewGame((prev) => ({ ...prev, notes: e.target.value.trim() }))} />
                 <label htmlFor="gameDate">Start Date</label>
-                <input type="date" id="gameDate" name="session-start" onChange={(e) => setNewGame({ ...newGame, dates: getWeekDates(e.target.value) })} defaultValue={currentDayFormat} />
+                <Calendar changeGameDate={changeGameDate} currentDayFormat={currentDayFormat} />
                 <span>Start Time</span>
                 <fieldset className="flex items-center gap-2">
                   <legend className="hidden">Start Time</legend>
@@ -169,7 +175,7 @@ const GamesPage = () => {
                 </fieldset>
               </div>
               <div className="flex gap-4 mt-4 mb-7 justify-center">
-                <button type="submit" className="px-3 py-1 mt-4 rounded-md bg-indigo-400">
+                <button type="submit" className="px-3 py-1 mt-4 border-2 rounded-md bg-indigo-400 border-indigo-800">
                   Save
                 </button>
                 <button
@@ -178,7 +184,7 @@ const GamesPage = () => {
                     setGameFormVisible(false);
                     setPlayerName("");
                   }}
-                  className="px-3 py-1 mt-4 rounded-md bg-rose-400"
+                  className="px-3 py-1 mt-4 border-2 rounded-md bg-rose-400 border-rose-800"
                 >
                   Cancel
                 </button>
@@ -191,7 +197,7 @@ const GamesPage = () => {
                 onClick={() => {
                   setGameFormVisible(true);
                 }}
-                className="px-3 py-1 m-7 rounded-md bg-rose-400"
+                className="px-3 py-1 m-7 border-2 rounded-md bg-rose-400 border-rose-800"
               >
                 ADD NEW GAME
               </button>

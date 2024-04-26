@@ -9,11 +9,12 @@ import TimeSelection from "./TimeSelection";
 import GameHeader from "./GameHeader";
 import getWeekDates from "@lib/getWeekDates";
 import { v4 } from "uuid";
+import Calendar from "./Calendar";
 
 type TimeTable = {
   elementId: number;
   gm: QueryDocumentSnapshot<DocumentData, DocumentData>;
-  today: number;
+  today: string;
   playersValue: QuerySnapshot<DocumentData, DocumentData> | undefined;
   addNewPlayer: (e: React.FormEvent<HTMLFormElement>, gameId: string, player: Player) => void;
   setFormVisible: Dispatch<SetStateAction<boolean>>;
@@ -46,7 +47,7 @@ const dayNames = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
 const GameTable = ({ elementId, gm, today, playersValue, addNewPlayer, setFormVisible, playerInitial, currentDayFormat }: TimeTable) => {
   const [newPlayer, setNewPlayer] = useState<Player>(playerInitial);
   const [isNameInput, setIsNameInput] = useState<boolean>(false);
-  const [duplicateDates, setDuplicateDates] = useState<string[]>(getWeekDates());
+  const [duplicateDates, setDuplicateDates] = useState<string[]>(getWeekDates(new Date()));
 
   const [duplicateForm, setDuplicateForm] = useState<FormVisible>(isFormVisibleInit);
   const [playerFormVisible, setPlayerFormVisible] = useState<FormVisible>(isFormVisibleInit);
@@ -123,6 +124,10 @@ const GameTable = ({ elementId, gm, today, playersValue, addNewPlayer, setFormVi
     addToGames(copiedGame);
   };
 
+  const changeGameDate = (changedDates: string[]) => {
+    setDuplicateDates(changedDates);
+  };
+
   return (
     <div id={`game${elementId}`} className="bg-stone-400 rounded-lg p-4 text-lg relative border-l-8 border-rose-600 w-[40rem] scroll-mt-[5rem]">
       <GameHeader startAt={gm.data().startAt} title={gm.data().title} type={gm.data().type} docId={gm.id} gameId={gm.data().id} notes={gm.data().notes} />
@@ -131,7 +136,10 @@ const GameTable = ({ elementId, gm, today, playersValue, addNewPlayer, setFormVi
         <ul className="grid grid-cols-8">
           <li></li>
           {dayNames.map((day, index) => (
-            <li key={gm.data().id + index} className={`flex flex-col items-center justify-center pb-3 ${today === index && "font-bold flex justify-center pb-3"}`}>
+            <li
+              key={gm.data().id + index}
+              className={`flex flex-col items-center justify-center pb-3 border-l-2 border-stone-500 ${today === `${gm.data().dates[index]}` && "font-bold flex justify-center pb-3 bg-violet-200"}`}
+            >
               <span>{day}</span>
               <span>{`(${gm.data().dates[index]})`}</span>
             </li>
@@ -255,7 +263,7 @@ const GameTable = ({ elementId, gm, today, playersValue, addNewPlayer, setFormVi
         {duplicateForm.visible && duplicateForm.id === gm.data().id && (
           <form onSubmit={(e) => duplicatePlayerGroup(e)} className="flex items-center gap-3 px-3 py-1 mt-7 rounded-md">
             <label htmlFor="duplicateDate">Start Date</label>
-            <input type="date" id="duplicateDate" name="session-copy" defaultValue={currentDayFormat} onChange={(e) => setDuplicateDates(getWeekDates(e.target.value))} />
+            <Calendar changeGameDate={changeGameDate} currentDayFormat={currentDayFormat} />
             <button type="submit">
               <MdDone size={30} className="hover:text-indigo-600" />
             </button>
@@ -281,7 +289,7 @@ const GameTable = ({ elementId, gm, today, playersValue, addNewPlayer, setFormVi
               setIsEditName(isEditContentInit);
               setIsNameInput(true);
             }}
-            className="px-3 py-1 rounded-md bg-indigo-500"
+            className="px-3 py-1 border-2 rounded-md bg-indigo-500 border-indigo-800"
           >
             Add Player
           </button>
@@ -291,7 +299,7 @@ const GameTable = ({ elementId, gm, today, playersValue, addNewPlayer, setFormVi
               setDuplicateForm({ visible: true, id: gm.data().id });
               setFormVisible(false);
             }}
-            className="px-3 py-1 rounded-md bg-amber-500"
+            className="px-3 py-1 border-2 rounded-md bg-amber-500 border-amber-800"
           >
             Duplicate Group
           </button>

@@ -1,43 +1,24 @@
 "use client";
 
-const formatDate = (date: Date, dayOffest: number, options: Intl.DateTimeFormatOptions, isThisWeek: boolean) => {
-  const formattedDate: string = isThisWeek
-    ? new Date(date.getFullYear(), date.getMonth(), date.getDate() + dayOffest).toLocaleDateString(undefined, options)
-    : new Date(date.getFullYear(), date.getMonth(), date.getDate() + (8 - date.getDay()) + dayOffest).toLocaleDateString(undefined, options);
+const getWeekDates = (selectedDate: Date) => {
+  const newDate: Date = selectedDate;
+  const week: string[] = new Array();
 
-  return formattedDate;
-};
-
-const getWeekDates = (selectedDate?: string) => {
-  const thisYear = new Date().getFullYear();
-  let today: number = 0;
   const options: Intl.DateTimeFormatOptions = {
     month: "numeric",
     day: "numeric",
   };
-  const dateString: string = new Date().toLocaleDateString(undefined, options);
-  let thisDate: Date = new Date(`${thisYear}/${dateString}`);
 
-  if (selectedDate) thisDate = new Date(selectedDate);
+  // Starting Monday not Sunday
+  if (newDate.toLocaleDateString("en-EN", { weekday: "short" }) === "Sun") newDate.setDate(newDate.getDate() - 6);
+  else newDate.setDate(newDate.getDate() - newDate.getDay() + 1);
 
-  today = thisDate.getDay();
-
-  if (today > 1) {
-    const offset = today - 1;
-    thisDate = new Date(thisDate.getFullYear(), thisDate.getMonth(), thisDate.getDate() - offset);
-    today = today - offset;
+  for (var i = 0; i < 7; i++) {
+    week.push(new Date(newDate).toLocaleDateString(undefined, options));
+    newDate.setDate(newDate.getDate() + 1);
   }
 
-  const thisWeek: string[] = [
-    formatDate(thisDate, 0, options, true),
-    formatDate(thisDate, 1, options, true),
-    formatDate(thisDate, 2, options, true),
-    formatDate(thisDate, 3, options, true),
-    formatDate(thisDate, 4, options, true),
-    formatDate(thisDate, 5, options, true),
-    formatDate(thisDate, -1, options, false),
-  ];
-  return thisWeek;
+  return week;
 };
 
 export default getWeekDates;

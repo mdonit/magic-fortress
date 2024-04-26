@@ -1,4 +1,4 @@
-import Image from "next/image";
+// import Image from "next/image";
 import { GiChessRook } from "react-icons/gi";
 
 export default function Home() {
